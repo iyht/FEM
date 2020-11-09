@@ -14,7 +14,6 @@ template<typename Objective, typename Jacobian, typename Hessian>
 double newtons_method(Eigen::VectorXd &x0, Objective &f, Jacobian &g, Hessian &H, unsigned int maxSteps, Eigen::VectorXd &tmp_g, Eigen::SparseMatrixd &tmp_H) {
 
     double p = 0.5; // scaling factor
-    double alpha = 1.0; // initial step length
     double c = 1e-8; // ensure sufficient decrease
     //solve the linear system H*d = -g to the d
     // A = H
@@ -23,7 +22,7 @@ double newtons_method(Eigen::VectorXd &x0, Objective &f, Jacobian &g, Hessian &H
     {
         g(tmp_g, x0);
         H(tmp_H, x0);
-        if(tmp_g.squaredNorm() < c)
+        if(tmp_g.norm() < c)
         {
             break;
         }
@@ -35,13 +34,14 @@ double newtons_method(Eigen::VectorXd &x0, Objective &f, Jacobian &g, Hessian &H
         //std::cout << "x0\n" << x0 <<  std::endl;
 
         // line search
+        double alpha = 1.0; // initial step length
         while(true)
         {
            double threshold_cost = f(x0) + c*d.transpose()*tmp_g;
            double new_cost = f(x0 + (alpha*d));
            if(new_cost <= threshold_cost || alpha < c)
            {
-               std::cout << "alpha\n" << alpha <<  std::endl;
+               //std::cout << "alpha\n" << alpha <<  std::endl;
                break;
            }
            alpha = p*alpha;
